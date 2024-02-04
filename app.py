@@ -11,6 +11,35 @@ from flask_cors import CORS
 app = Flask(__name__)
 CORS(app)  
 
+# Store user reviews in a dictionary (for demonstration purposes)
+user_reviews = {}
+
+# New code for checking if the user already reviewed
+@app.route('/check_user', methods=['POST'])
+def check_user():
+    data = request.json
+
+    if 'username' in data and 'email' in data and 'phoneNumber' in data:
+        username = data['username']
+        email = data['email']
+        phoneNumber = data['phoneNumber']
+
+        # Check if the user already reviewed
+        if email in user_reviews:
+            return jsonify({'status': 'already_reviewed'})
+        
+        if phoneNumber in user_reviews:
+            return jsonify({'status': 'already_reviewed'})
+
+        # If not reviewed, store the user details for future reference
+        user_reviews[email] = {'email': email}
+        user_reviews[phoneNumber] = {'phoneNumber': phoneNumber}
+
+        return jsonify({'status': 'not_reviewed'})
+    else:
+        return jsonify({'status': 'error', 'message': 'Missing username, email, or phoneNumber'}), 400
+
+
 @app.route('/submit_rating', methods=['POST'])
 def submit_rating():
     data = request.json  
