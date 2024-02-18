@@ -44,10 +44,11 @@
           var html =
             '<table class="table table-sm table-bordered table-hover">';
           html +=
-            '<thead class="thead-light"><tr><th>Rating</th><th>Comment</th></tr></thead>';
+            '<thead class="thead-light"><tr><th>Food App</th><th>Rating</th><th>Comment</th></tr></thead>';
           html += "<tbody>";
           reviews.forEach(function (review) {
             html += "<tr>";
+            html += "<td>" + review.app + "</td>";
             html += "<td>" + generateStarRating(review.rating) + "</td>";
             html += "<td><bold>" + review.comment + "</bold></td>";
             html += "</tr>";

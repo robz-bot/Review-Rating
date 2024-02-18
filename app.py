@@ -6,9 +6,9 @@ CORS(app)
 
 # Store user reviews - dataset
 user_reviews = {}
-reviews =  [{'rating': 4, 'comment': "Great service!"}, 
-                {'rating': 3, 'comment': "Good but could be better."}, 
-                {'rating': 5, 'comment': "Absolutely fantastic!"}]
+reviews =  [{'app': 'KFC' , 'rating': 4, 'comment': "Great service!"}, 
+                {'app': 'PizzaHut' ,'rating': 3, 'comment': "Good but could be better."}, 
+                {'app': 'Dominos' ,'rating': 5, 'comment': "Absolutely fantastic!"}]
 
 @app.route('/check_user', methods=['POST'])
 def check_user():
@@ -37,11 +37,13 @@ def submit_rating():
     if 'rating' in data and 'comment' in data:
         rating = data['rating']
         comment = data['comment']
+        app = data['app']
 
         user_reviews[rating] = {'rating': rating}
         user_reviews[comment] = {'comment': comment}
+        user_reviews[app] = {'comment': app}
 
-        reviews.append({'rating': int(rating), 'comment': comment})
+        reviews.append({'rating': int(rating), 'comment': comment, 'app':app})
 
         return jsonify({'status': 'success'})
     else:

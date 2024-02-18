@@ -369,6 +369,19 @@
                 </div>
               </div>
             </div>
+            <div class="app-box mt-4">
+                <select
+                id="app"
+                class="my-2 form-select form-select-sm"
+              >
+                <option value="Swiggy">Swiggy</option>
+                <option value="Zomato">Zomato</option>
+                <option value="PizzaHut">PizzaHut</option>
+                <option value="Dominos">Dominos</option>
+                <option value="KFC">KFC</option>
+                <option value="Eat Sure">Eat Sure</option>
+              </select>
+            </div>
             <div class="comment-box mt-4">
               <textarea
                 id="comment"
@@ -404,6 +417,7 @@
         event.preventDefault();
 
         const userComment = document.getElementById("comment").value;
+        const userApp = document.getElementById("app").value;
         console.log("User selected rating: " + selectedRating);
         console.log("User comment: " + userComment);
 
@@ -433,7 +447,7 @@
           }
         };
 
-        const formData = { rating: selectedRating, comment: userComment };
+        const formData = { rating: selectedRating, comment: userComment, app:userApp };
         xhr.send(JSON.stringify(formData));
       }
 
