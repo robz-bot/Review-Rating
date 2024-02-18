@@ -51,9 +51,23 @@ def submit_rating():
         print(f"Received rating: {rating}")
         print(f"Received comment: {comment}")
 
+        user_reviews[rating] = {'rating': rating}
+        user_reviews[comment] = {'comment': comment}
+
+
         return jsonify({'status': 'success'})
     else:
         return jsonify({'status': 'error', 'message': 'Missing rating or comment'}), 400
+
+@app.route('/get_reviews')
+def get_reviews():
+    reviews_list = [{'rating': 4, 'comment': "Great service!"},{'rating': 3, 'comment': "Good but could be better."}, {'rating': 5, 'comment': "Absolutely fantastic!"}]
+
+    print("66")
+    for review in user_reviews:
+        reviews_list.append({'rating': review['rating'], 'comment': review['comment']})
+    print(reviews_list)    
+    return jsonify(reviews_list)
 
 if __name__ == '__main__':
     app.run(debug=True)

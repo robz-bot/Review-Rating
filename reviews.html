@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Review Page</title>
+    <link rel="stylesheet" href="index.css" />
+    <!-- Bootstrap CSS -->
+    <link
+      href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+  </head>
+  <body id="ratingBdy">
+    <div
+      class="container mt-2 d-flex align-items-center justify-content-between"
+    >
+      <h4 class="mb-2">Public Reviews</h4>
+      <a href="index.html" class="btn btn-sm btn-light">Home</a>
+    </div>
+    <div id="reviewsContainer" class="container mb-5"></div>
+    <!-- Bootstrap JS and jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script>
+      $(document).ready(function () {
+        $.get("http://localhost:5000/get_reviews", function (reviews) {
+          console.log(reviews);
+          if (reviews.length == 0) {
+            var html = '<div class="text-danger">';
+            html += "<h4>No Record(s) Found</h4></div>";
+            $("#reviewsContainer").html(html);
+          } else {
+            displayReviews(reviews);
+          }
+        }).fail(function () {
+          $("#reviewsContainer").html(
+            '<p class="text-danger">Error fetching reviews</p>'
+          );
+        });
+
+        function displayReviews(reviews) {
+          var html =
+            '<table class="table table-sm table-bordered table-hover">';
+          html +=
+            '<thead class="thead-light"><tr><th>Rating</th><th>Comment</th></tr></thead>';
+          html += "<tbody>";
+          reviews.forEach(function (review) {
+            html += "<tr>";
+            html += "<td>" + generateStarRating(review.rating) + "</td>";
+            html += "<td><bold>" + review.comment + "</bold></td>";
+            html += "</tr>";
+          });
+          html += "</tbody></table>";
+          $("#reviewsContainer").html(html);
+        }
+
+        // Function to generate star ratings based on the rating value
+        function generateStarRating(rating) {
+          var stars = "";
+          for (var i = 0; i < rating; i++) {
+            stars += '<span <i class="bi bi-star-fill"></i></span>';
+          }
+          return stars;
+        }
+      });
+    </script>
+  </body>
+</html>
