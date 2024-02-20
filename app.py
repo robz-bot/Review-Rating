@@ -1,34 +1,42 @@
 from flask import Flask, request, jsonify
-from flask_cors import CORS  
+from flask_cors import CORS
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.svm import SVC
+from nltk.corpus import stopwords
+from nltk.tokenize import word_tokenize
+from nltk.stem import WordNetLemmatizer
+import string
+import pandas as pd
+import nltk
+nltk.download('punkt')
+nltk.download('wordnet')
 
 app = Flask(__name__)
-CORS(app)  
+CORS(app)
 
-# Store user reviews - dataset
-user_reviews = {}
-reviews =  [{'app': 'KFC' , 'rating': 4, 'comment': "Great service!"}, 
-                {'app': 'PizzaHut' ,'rating': 3, 'comment': "Good but could be better."}, 
-                {'app': 'Dominos' ,'rating': 5, 'comment': "Absolutely fantastic!"}]
+# Load dataset from CSV
+df = pd.read_csv('reviews.csv')
 
-@app.route('/check_user', methods=['POST'])
-def check_user():
-    data = request.json
+# Preprocessing
+lemmatizer = WordNetLemmatizer()
+stop_words = set(stopwords.words('english'))
 
-    if 'username' in data and 'email' in data and 'phoneNumber' in data:
-        email = data['email']
-        phoneNumber = data['phoneNumber']
+def preprocess_text(text):
+    tokens = word_tokenize(text.lower())
+    tokens = [lemmatizer.lemmatize(token) for token in tokens if token not in stop_words and token not in string.punctuation]
+    return ' '.join(tokens)
 
-        # Check if the user already reviewed
-        if email in user_reviews or phoneNumber in user_reviews:
-            return jsonify({'status': 'already_reviewed'})
+# Preprocess text data
+df['clean_comment'] = df['comment'].apply(preprocess_text)
 
-        # If not reviewed, store the user details for future reference
-        user_reviews[email] = {'email': email}
-        user_reviews[phoneNumber] = {'phoneNumber': phoneNumber}
+# Feature extraction
+tfidf_vectorizer = TfidfVectorizer(max_features=1000)
+X = tfidf_vectorizer.fit_transform(df['clean_comment'])
+y = df['label']
 
-        return jsonify({'status': 'not_reviewed'})
-    else:
-        return jsonify({'status': 'error', 'message': 'Missing username, email, or phoneNumber'}), 400
+# Model training
+svm_classifier = SVC(kernel='linear')
+svm_classifier.fit(X, y)
 
 @app.route('/submit_rating', methods=['POST'])
 def submit_rating():
@@ -37,21 +45,35 @@ def submit_rating():
     if 'rating' in data and 'comment' in data:
         rating = data['rating']
         comment = data['comment']
-        app = data['app']
 
-        user_reviews[rating] = {'rating': rating}
-        user_reviews[comment] = {'comment': comment}
-        user_reviews[app] = {'comment': app}
-
-        reviews.append({'rating': int(rating), 'comment': comment, 'app':app})
-
-        return jsonify({'status': 'success'})
+        # Preprocess the comment
+        preprocessed_comment = preprocess_text(comment)
+        # Extract features
+        comment_features = tfidf_vectorizer.transform([preprocessed_comment])
+        # Predict using the trained model
+        prediction = svm_classifier.predict(comment_features)[0]
+        print(prediction)
+        if prediction == 1:
+            # Genuine review
+            return jsonify({'status': 'success'})
+        else:
+            # Fake review detected
+            return jsonify({'status': 'error', 'message': 'Fake review detected'}), 400
     else:
         return jsonify({'status': 'error', 'message': 'Missing rating or comment'}), 400
 
-@app.route('/get_reviews')
-def get_reviews():
-    return jsonify(reviews)
+user_reviews={}
+@app.route('/check_user', methods=['POST'])
+def check_user():
+    data = request.json
 
+    email = data['email']
+    phoneNumber = data['phoneNumber']
+
+    user_reviews[email] = {'email': email}
+    user_reviews[phoneNumber] = {'phoneNumber': phoneNumber}
+
+    return jsonify({'status': 'not_reviewed'})
+    
 if __name__ == '__main__':
     app.run(debug=True)

@@ -1,4 +1,8 @@
 # Review Rating
  Mini Proj
 
-to install packages - pip install Flask-Mail
+pip install flask
+pip install flask-cors
+pip install scikit-learn
+pip install nltk
+pip install pandas

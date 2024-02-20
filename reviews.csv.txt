@@ -1,0 +1,8 @@
+rating,comment,label
+4,"Great service!",1
+3,"Good but could be better.",1
+5,"Absolutely fantastic!",1
+1,"Worst food ever!",0
+2,"Terrible experience.",0
+4,"Delicious sandwiches.",1
+5,"Best burgers in town!",1

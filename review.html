@@ -370,10 +370,7 @@
               </div>
             </div>
             <div class="app-box mt-4">
-                <select
-                id="app"
-                class="my-2 form-select form-select-sm"
-              >
+              <select id="app" class="my-2 form-select form-select-sm">
                 <option value="Swiggy">Swiggy</option>
                 <option value="Zomato">Zomato</option>
                 <option value="PizzaHut">PizzaHut</option>
@@ -442,12 +439,17 @@
                 window.location.href = `/index.html`;
               }, 3000);
             } else {
+              alert(JSON.parse(xhr.response).message);
               console.error("Error:", xhr.status, xhr.statusText);
             }
           }
         };
 
-        const formData = { rating: selectedRating, comment: userComment, app:userApp };
+        const formData = {
+          rating: selectedRating,
+          comment: userComment,
+          app: userApp,
+        };
         xhr.send(JSON.stringify(formData));
       }
 
