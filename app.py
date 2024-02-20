@@ -1,10 +1,9 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS  
-from flask_mail import Mail, Message
-import requests
+
 app = Flask(__name__)
-CORS(app)
-RECAPTCHA_SECRET_KEY = "6LcSCXkpAAAAAIawZMrR5hhu6ITGhSDqZuZYza99"
+CORS(app)  
+
 # Store user reviews - dataset
 user_reviews = {}
 reviews =  [{'app': 'KFC' , 'rating': 4, 'comment': "Great service!"}, 
@@ -39,7 +38,6 @@ def submit_rating():
         rating = data['rating']
         comment = data['comment']
         app = data['app']
-        recaptcha_response = data['g-recaptcha-response']
 
         user_reviews[rating] = {'rating': rating}
         user_reviews[comment] = {'comment': comment}
@@ -47,29 +45,9 @@ def submit_rating():
 
         reviews.append({'rating': int(rating), 'comment': comment, 'app':app})
 
-        # Verify reCAPTCHA response
-        recaptcha_verify_url = 'https://www.google.com/recaptcha/api/siteverify'
-        payload = {
-            'secret': RECAPTCHA_SECRET_KEY,
-            'response': recaptcha_response
-        }
-        recaptcha_response = requests.post(recaptcha_verify_url, data=payload)
-
-        if recaptcha_response.status_code == 200:
-            recaptcha_data = recaptcha_response.json()
-            if recaptcha_data['success']:
-                # reCAPTCHA verification successful
-                # Proceed with storing the review
-                reviews.append({'rating': int(rating), 'comment': comment})
-                return jsonify({'status': 'success'})
-            else:
-                return jsonify({'status': 'error', 'message': 'reCAPTCHA verification failed'}), 400
-        else:
-            return jsonify({'status': 'error', 'message': 'Failed to verify reCAPTCHA'}), 500
-
+        return jsonify({'status': 'success'})
     else:
-        return jsonify({'status': 'error', 'message': 'Missing rating, comment, or reCAPTCHA response'}), 400
-
+        return jsonify({'status': 'error', 'message': 'Missing rating or comment'}), 400
 
 @app.route('/get_reviews')
 def get_reviews():

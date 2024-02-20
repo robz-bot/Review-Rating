@@ -2,214 +2,139 @@
 
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>User Details</title>
-    <link rel="stylesheet" href="index.css" />
-    <link
-      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
-      rel="stylesheet"
-      integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN"
-      crossorigin="anonymous"
-    />
-    <script
-      src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
-      integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
-      crossorigin="anonymous"
-    ></script>
+    <link rel="stylesheet" href="index.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
+        crossorigin="anonymous"></script>
     <script src="https://use.fontawesome.com/f59bcd8580.js"></script>
-    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+</head>
 
-  </head>
-
-  <body id="homeBdy">
+<body id="homeBdy">
     <div class="container">
-      <div class="row m-5 no-gutters shadow-lg">
-        <div class="col-md-6 d-none d-md-block">
-          <img
-            src="https://images.unsplash.com/photo-1592890288564-76628a30a657?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
-            class="img-fluid"
-            style="min-height: 100%"
-          />
+        <div class="row m-5 no-gutters shadow-lg">
+            <div class="col-md-6 d-none d-md-block">
+                <img src="https://images.unsplash.com/photo-1592890288564-76628a30a657?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+                    class="img-fluid" style="min-height:100%;" />
+            </div>
+            <div class="col-md-6 bg-white p-5">
+                <div class="form-style">
+                    <form id="userDetailsForm" action="/check_user" method="post">
+                        <div class=" my-2">
+                            <h3 class=" my-1">Rating and Review Aggregator</h3>
+
+                            <div id="userCheckMessage" style="display: none;">
+                                <p class="badge bg-danger text-wrap"> Oops!!!Email or Phone Number is already taken by
+                                    this user. Please try new user. Thanks for your interest.</p>
+                            </div>
+                            <div class="card-body">
+                                <div class="mb-3">
+                                    <label for="username" class="form-label">Username</label>
+                                    <input type="text" class="form-control" required id="username" name="username"
+                                        pattern="[a-zA-Z0-9]{5,}">
+                                    <span class="error" id="userError"></span>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="mailid" class="form-label">Mail ID</label>
+                                    <input type="email" class="form-control" required
+                                        pattern="[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$" id="mailid"
+                                        name="mailid">
+                                    <span class="error" id="emailError"></span>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="phone" class="form-label">Phone Number</label>
+                                    <input type="tel" class="form-control" required pattern="[0-9]{10}" id="phone" name="phone">
+                                    <span class="error" id="phoneError"></span>
+                                </div>
+                            </div>
+                            <div class="card-footer d-flex align-items-center justify-content-between ">
+                                <button class="btn btn-dark" onclick="checkReview(event)">Let In</button>
+                                <a href="reviews.html" class="btn btn-success">Public Reviews</a>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+
+            </div>
         </div>
-        <div class="col-md-6 bg-white p-5">
-          <div class="form-style">
-            <form id="userDetailsForm" action="/check_user" method="post">
-              <div class="my-2">
-                <h3 class="my-1">Rating and Review Aggregator</h3>
-
-                <div id="userCheckMessage" style="display: none">
-                  <p class="badge bg-danger text-wrap">
-                    Oops!!!Email or Phone Number is already taken by this user.
-                    Please try new user. Thanks for your interest.
-                  </p>
-                </div>
-                <div class="card-body">
-                  <div class="mb-3">
-                    <label for="username" class="form-label">Username</label>
-                    <input
-                      type="text"
-                      class="form-control"
-                      required
-                      id="username"
-                      name="username"
-                      pattern="[a-zA-Z0-9]{5,}"
-                    />
-                    <span class="error" id="userError"></span>
-                  </div>
-                  <div class="mb-3">
-                    <label for="mailid" class="form-label">Mail ID</label>
-                    <input
-                      type="email"
-                      class="form-control"
-                      required
-                      pattern="[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$"
-                      id="mailid"
-                      name="mailid"
-                    />
-                    <span class="error" id="emailError"></span>
-                  </div>
-                  <div class="mb-3">
-                    <label for="phone" class="form-label">Phone Number</label>
-                    <input
-                      type="tel"
-                      class="form-control"
-                      required
-                      pattern="[0-9]{10}"
-                      id="phone"
-                      name="phone"
-                    />
-                    <span class="error" id="phoneError"></span>
-                  </div>
-                  <!-- Add Email Verification Code Field -->
-                  <!-- <div class="mb-3">
-                    <label for="verificationCode" class="form-label"
-                      >Verification Code</label
-                    >
-                    <input
-                      type="text"
-                      class="form-control"
-                      id="verificationCode"
-                      name="verificationCode"
-                    />
-                    <span class="error" id="verificationCodeError"></span>
-                  </div>
-                  <button
-                    class="btn btn-primary"
-                    onclick="sendVerificationEmail(event)"
-                  >
-                    Send Verification Email
-                  </button> -->
-
-                  <!-- Add Verify Email Button -->
-                  <!-- <button class="btn btn-primary" onclick="verifyEmail(event)">
-                    Verify Email
-                  </button> -->
-
-                  <!-- Add this before the submit button -->
-                  <div class="g-recaptcha" data-sitekey="6LcSCXkpAAAAAIllI2JKKPuvbmQhXmweRefajLba" data-callback="onSubmit" data-size="invisible"></div>
-
-                </div>
-                <div
-                  class="card-footer d-flex align-items-center justify-content-between"
-                >
-                  <button class="btn btn-dark" onclick="checkReview(event)">
-                    Let In
-                  </button>
-                  <a href="reviews.html" class="btn btn-success"
-                    >Public Reviews</a
-                  >
-                </div>
-              </div>
-            </form>
-          </div>
-        </div>
-      </div>
     </div>
 
     <script>
-      function validateForm() {
-        var usernameInput = document.getElementById("username");
-        var emailInput = document.getElementById("mailid");
-        var phoneInput = document.getElementById("phone");
-        var usernameError = document.getElementById("userError");
-        var emailError = document.getElementById("emailError");
-        var phoneError = document.getElementById("phoneError");
+        function validateForm() {
+            var usernameInput = document.getElementById("username");
+            var emailInput = document.getElementById("mailid");
+            var phoneInput = document.getElementById("phone");
+            var usernameError = document.getElementById("userError");
+            var emailError = document.getElementById("emailError");
+            var phoneError = document.getElementById("phoneError");
 
-        // Username validation
-        if (!usernameInput.checkValidity()) {
-          usernameError.innerHTML =
-            "Username should be length should be 5 atleast.";
-          return false;
-        } else {
-          usernameError.innerHTML = "";
-        }
-
-        // Email validation
-        if (!emailInput.checkValidity()) {
-          emailError.innerHTML = "Please enter a valid email address.";
-          return false;
-        } else {
-          emailError.innerHTML = "";
-        }
-
-        // Phone number validation
-        if (!phoneInput.checkValidity()) {
-          phoneError.innerHTML = "Please enter a valid 10-digit phone number.";
-          return false;
-        } else {
-          phoneError.innerHTML = "";
-        }
-
-        return true;
-      }
-
-      function checkReview(event) {
-        if (validateForm()) {
-          event.preventDefault();
-          const username = document.getElementById("username").value;
-          const email = document.getElementById("mailid").value;
-          const phoneNumber = document.getElementById("phone").value;
-
-          const recaptchaResponse = grecaptcha.getResponse();
-          if (!recaptchaResponse) {
-            alert("Please complete the reCAPTCHA verification.");
-            return;
-          }
-
-          const xhr = new XMLHttpRequest();
-          xhr.open("POST", "http://localhost:5000/check_user");
-          xhr.setRequestHeader("Content-Type", "application/json");
-
-          xhr.onreadystatechange = function () {
-            if (xhr.readyState === 4) {
-              if (xhr.status === 200) {
-                const response = JSON.parse(xhr.responseText);
-
-                if (response.status === "already_reviewed") {
-                  document.getElementById("userCheckMessage").style.display =
-                    "block";
-                } else {
-                  // Redirect to the review page with user details
-                  window.location.href = `/review.html`;
-                }
-              } else {
-                console.error("Error:", xhr.status, xhr.statusText);
-              }
+            // Username validation
+            if (!usernameInput.checkValidity()) {
+                usernameError.innerHTML = "Username should be length should be 5 atleast.";
+                return false;
+            } else {
+                usernameError.innerHTML = "";
             }
-          };
 
-          const formData = {
-            username: username,
-            email: email,
-            phoneNumber: phoneNumber,
-            "g-recaptcha-response": recaptchaResponse,
-          };
+            // Email validation
+            if (!emailInput.checkValidity()) {
+                emailError.innerHTML = "Please enter a valid email address.";
+                return false;
+            } else {
+                emailError.innerHTML = "";
+            }
 
-          xhr.send(JSON.stringify(formData));
+            // Phone number validation
+            if (!phoneInput.checkValidity()) {
+                phoneError.innerHTML = "Please enter a valid 10-digit phone number.";
+                return false;
+            } else {
+                phoneError.innerHTML = "";
+            }
+
+            return true;
         }
-      }
+
+        function checkReview(event) {
+            if (validateForm()) {
+                event.preventDefault()
+                const username = document.getElementById('username').value;
+                const email = document.getElementById('mailid').value;
+                const phoneNumber = document.getElementById('phone').value;
+
+                const xhr = new XMLHttpRequest();
+                xhr.open('POST', 'http://localhost:5000/check_user');
+                xhr.setRequestHeader('Content-Type', 'application/json');
+
+                xhr.onreadystatechange = function () {
+                    if (xhr.readyState === 4) {
+                        if (xhr.status === 200) {
+                            const response = JSON.parse(xhr.responseText);
+
+                            if (response.status === 'already_reviewed') {
+                                document.getElementById('userCheckMessage').style.display = 'block';
+                            } else {
+                                // Redirect to the review page with user details
+                                window.location.href = `/review.html`;
+                            }
+                        } else {
+                            console.error('Error:', xhr.status, xhr.statusText);
+                        }
+                    }
+                };
+
+                const formData = { 'username': username, 'email': email, 'phoneNumber': phoneNumber };
+                xhr.send(JSON.stringify(formData));
+            }
+
+        }
     </script>
-  </body>
+</body>
+
 </html>
