@@ -35,7 +35,6 @@ fake_comments = [
     "Shameful performance."
 ]
 
-
 # Generate genuine review comments
 genuine_comments = [
     "Outstanding service!",
@@ -70,22 +69,26 @@ genuine_comments = [
     "A wonderful find."
 ]
 
-# Generate 500 fake and 500 genuine reviews
+# List of app names
+app_names = ["KFC", "PizzaHut", "Dominos", "McDonalds", "Starbucks", "Subway", "BurgerKing"]
+
+# Generate 500 fake and 500 genuine reviews for each app
 records = []
-for i in range(10000):
-    if i < 500:
-        label = 0  # Fake review
-        comment = random.choice(fake_comments)
-    else:
-        label = 1  # Genuine review
-        comment = random.choice(genuine_comments)
-    rating = random.randint(1, 5)  # Random rating between 1 and 5
-    records.append((rating, comment, label))
+for app in app_names:
+    for i in range(500):
+        if i < 250:
+            label = 0  # Fake review
+            comment = random.choice(fake_comments)
+        else:
+            label = 1  # Genuine review
+            comment = random.choice(genuine_comments)
+        rating = random.randint(1, 5)  # Random rating between 1 and 5
+        records.append((app, rating, comment, label))
 
 # Write records to CSV file
 with open('reviews.csv', 'w', newline='', encoding='utf-8') as file:
     writer = csv.writer(file)
-    writer.writerow(['rating', 'comment', 'label'])
+    writer.writerow(['app', 'rating', 'comment', 'label'])
     writer.writerows(records)
 
-print("CSV file with 1000 records generated successfully.")
+print("CSV file with 10000 records generated successfully.")
