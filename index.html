@@ -19,6 +19,8 @@
       crossorigin="anonymous"
     ></script>
     <script src="https://use.fontawesome.com/f59bcd8580.js"></script>
+    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+
   </head>
 
   <body id="homeBdy">
@@ -81,7 +83,7 @@
                     <span class="error" id="phoneError"></span>
                   </div>
                   <!-- Add Email Verification Code Field -->
-                  <div class="mb-3">
+                  <!-- <div class="mb-3">
                     <label for="verificationCode" class="form-label"
                       >Verification Code</label
                     >
@@ -98,12 +100,16 @@
                     onclick="sendVerificationEmail(event)"
                   >
                     Send Verification Email
-                  </button>
+                  </button> -->
 
                   <!-- Add Verify Email Button -->
-                  <button class="btn btn-primary" onclick="verifyEmail(event)">
+                  <!-- <button class="btn btn-primary" onclick="verifyEmail(event)">
                     Verify Email
-                  </button>
+                  </button> -->
+
+                  <!-- Add this before the submit button -->
+                  <div class="g-recaptcha" data-sitekey="6LcSCXkpAAAAAIllI2JKKPuvbmQhXmweRefajLba" data-callback="onSubmit" data-size="invisible"></div>
+
                 </div>
                 <div
                   class="card-footer d-flex align-items-center justify-content-between"
@@ -159,80 +165,18 @@
         return true;
       }
 
-      function sendVerificationEmail(event) {
-        event.preventDefault();
-        const email = document.getElementById("mailid").value;
-
-        const xhr = new XMLHttpRequest();
-        xhr.open("POST", "http://localhost:5000/send_verification_email");
-        xhr.setRequestHeader("Content-Type", "application/json");
-
-        xhr.onreadystatechange = function () {
-          if (xhr.readyState === 4) {
-            if (xhr.status === 200) {
-              const response = JSON.parse(xhr.responseText);
-
-              if (response.status === "email_sent") {
-                // Email sent successfully, display a success message to the user
-                alert("Verification email sent successfully!");
-              } else {
-                // Handle other response statuses
-                alert("Error sending verification email: " + response.message);
-              }
-            } else {
-              // Error handling for HTTP request
-              console.error("Error:", xhr.status, xhr.statusText);
-            }
-          }
-        };
-
-        var range = 100000;
-        var number = Math.floor((Math.random() * range) / 2) * 2;
-        const formData = { email: email, verification_code: number };
-        xhr.send(JSON.stringify(formData));
-      }
-      // JavaScript code for email verification
-      function verifyEmail(event) {
-        event.preventDefault();
-        const email = document.getElementById("mailid").value;
-        const verificationCode =
-          document.getElementById("verificationCode").value;
-
-        const xhr = new XMLHttpRequest();
-        xhr.open("POST", "http://localhost:5000/verify_email");
-        xhr.setRequestHeader("Content-Type", "application/json");
-
-        xhr.onreadystatechange = function () {
-          if (xhr.readyState === 4) {
-            if (xhr.status === 200) {
-              const response = JSON.parse(xhr.responseText);
-
-              if (response.status === "verified") {
-                // Email verified successfully, proceed with form submission or further actions
-                // For example, enable form submission button
-                document.getElementById("submitBtn").disabled = false;
-              } else {
-                // Email verification failed, display error message
-                document.getElementById("verificationCodeError").innerText =
-                  response.message;
-              }
-            } else {
-              // Error handling for HTTP request
-              console.error("Error:", xhr.status, xhr.statusText);
-            }
-          }
-        };
-
-        const formData = { email: email, verificationCode: verificationCode };
-        xhr.send(JSON.stringify(formData));
-      }
-
       function checkReview(event) {
         if (validateForm()) {
           event.preventDefault();
           const username = document.getElementById("username").value;
           const email = document.getElementById("mailid").value;
           const phoneNumber = document.getElementById("phone").value;
+
+          const recaptchaResponse = grecaptcha.getResponse();
+          if (!recaptchaResponse) {
+            alert("Please complete the reCAPTCHA verification.");
+            return;
+          }
 
           const xhr = new XMLHttpRequest();
           xhr.open("POST", "http://localhost:5000/check_user");
@@ -260,7 +204,9 @@
             username: username,
             email: email,
             phoneNumber: phoneNumber,
+            "g-recaptcha-response": recaptchaResponse,
           };
+
           xhr.send(JSON.stringify(formData));
         }
       }

@@ -1,58 +1,15 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS  
 from flask_mail import Mail, Message
-
+import requests
 app = Flask(__name__)
 CORS(app)
-
+RECAPTCHA_SECRET_KEY = "6LcSCXkpAAAAAIawZMrR5hhu6ITGhSDqZuZYza99"
 # Store user reviews - dataset
 user_reviews = {}
 reviews =  [{'app': 'KFC' , 'rating': 4, 'comment': "Great service!"}, 
                 {'app': 'PizzaHut' ,'rating': 3, 'comment': "Good but could be better."}, 
                 {'app': 'Dominos' ,'rating': 5, 'comment': "Absolutely fantastic!"}]
-
-# Configuration for Flask-Mail
-app.config['MAIL_SERVER'] = 'smtp.gmail.com'  # Your SMTP server
-app.config['MAIL_PORT'] = 587  # Your SMTP port
-app.config['MAIL_USE_TLS'] = True  # Enable TLS
-app.config['MAIL_USERNAME'] = 'dummymailrobz@gmail.com'  # Your email username
-app.config['MAIL_PASSWORD'] = 'DummyMail@2024'  # Your email password
-
-mail = Mail(app)
-
-# Function to send verification email
-@app.route('/send_verification_email', methods=['POST'])
-def send_verification_email():
-    data = request.json
-
-    if 'email' in data and 'verification_code' in data:
-        email = data['email']
-        verification_code = data['verification_code']
-    msg = Message('Verify Your Email', sender='dummymailrobz@gmail.com', recipients=[email])
-    msg.body = f'Your verification code is: {verification_code}'
-    print(msg)
-    mail.send(msg)
-
-# Dictionary to store email verification codes
-verification_codes = {}
-
-@app.route('/verify_email', methods=['POST'])
-def verify_email():
-    data = request.json
-    print(data)
-    if 'email' in data and 'verificationCode' in data:
-        email = data['email']
-        verification_code = data['verificationCode']
-
-        # Check if the verification code matches the one stored for the email
-        if email in verification_codes and verification_codes[email] == verification_code:
-            # If verification succeeds, remove the verification code from the dictionary
-            del verification_codes[email]
-            return jsonify({'status': 'verified'})
-        else:
-            return jsonify({'status': 'error', 'message': 'Invalid verification code'}), 400
-    else:
-        return jsonify({'status': 'error', 'message': 'Missing email or verification code'}), 400
 
 @app.route('/check_user', methods=['POST'])
 def check_user():
@@ -82,6 +39,7 @@ def submit_rating():
         rating = data['rating']
         comment = data['comment']
         app = data['app']
+        recaptcha_response = data['g-recaptcha-response']
 
         user_reviews[rating] = {'rating': rating}
         user_reviews[comment] = {'comment': comment}
@@ -89,9 +47,29 @@ def submit_rating():
 
         reviews.append({'rating': int(rating), 'comment': comment, 'app':app})
 
-        return jsonify({'status': 'success'})
+        # Verify reCAPTCHA response
+        recaptcha_verify_url = 'https://www.google.com/recaptcha/api/siteverify'
+        payload = {
+            'secret': RECAPTCHA_SECRET_KEY,
+            'response': recaptcha_response
+        }
+        recaptcha_response = requests.post(recaptcha_verify_url, data=payload)
+
+        if recaptcha_response.status_code == 200:
+            recaptcha_data = recaptcha_response.json()
+            if recaptcha_data['success']:
+                # reCAPTCHA verification successful
+                # Proceed with storing the review
+                reviews.append({'rating': int(rating), 'comment': comment})
+                return jsonify({'status': 'success'})
+            else:
+                return jsonify({'status': 'error', 'message': 'reCAPTCHA verification failed'}), 400
+        else:
+            return jsonify({'status': 'error', 'message': 'Failed to verify reCAPTCHA'}), 500
+
     else:
-        return jsonify({'status': 'error', 'message': 'Missing rating or comment'}), 400
+        return jsonify({'status': 'error', 'message': 'Missing rating, comment, or reCAPTCHA response'}), 400
+
 
 @app.route('/get_reviews')
 def get_reviews():
