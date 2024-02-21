@@ -82,7 +82,10 @@ for app in app_names:
         else:
             label = 1  # Genuine review
             comment = random.choice(genuine_comments)
-        rating = random.randint(1, 5)  # Random rating between 1 and 5
+        if(label == 0):
+            rating = random.randint(1, 2)  # Random rating between 1 and 2
+        else:
+            rating = random.randint(3, 5)  # Random rating between 3 and 5
         records.append((app, rating, comment, label))
 
 # Write records to CSV file
