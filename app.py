@@ -12,9 +12,9 @@ nltk.download('punkt')
 nltk.download('wordnet')
 
 
-reviews =  [{'app':"KFC",'rating': 4, 'comment': "A class above the rest."}, 
-            {'app':"PizzaHut",'rating': 3, 'comment': "Absolutely delightful."}, 
-            {'app':"Dominos",'rating': 5, 'comment': "Unbeatable quality."}]
+reviews =  [{'app':"KFC",'rating': 4, 'comment': "A class above the rest.", 'label':0}, 
+            {'app':"PizzaHut",'rating': 3, 'comment': "Absolutely delightful.", 'label':1}, 
+            {'app':"Dominos",'rating': 5, 'comment': "Unbeatable quality.", 'label':0}]
 
 app = Flask(__name__)
 CORS(app)
@@ -66,16 +66,20 @@ def submit_rating():
         prediction = svm_classifier.predict(comment_features)[0]
 
         if prediction == 1:
-            user_reviews[rating] = {'rating': rating, 'comment': comment, 'app': app_name}
-            reviews.append({'rating': rating, 'comment': comment, 'app': app_name})
+            user_reviews[rating] = {'rating': rating, 'comment': comment, 'app': app_name, 'label':1}
+            reviews.append({'rating': rating, 'comment': comment, 'app': app_name, 'label':1})
             # Genuine review
             return jsonify({'status': 'success'})
         else:
             # Fake review detected only if the rating is not extreme (1 or 5)
             if rating != 1 and rating != 5:
-                return jsonify({'status': 'error', 'message': 'Fake review detected'}), 400
+                reviews.append({'rating': rating, 'comment': comment, 'app': app_name, 'label':0})
+                user_reviews[rating] = {'rating': rating, 'comment': comment, 'app': app_name, 'label':0}
+                # return jsonify({'status': 'success', 'message': 'Fake review detected'}), 400
+                return jsonify({'status': 'success', 'message': 'Fake review detected'})
             else:
-                user_reviews[rating] = {'rating': rating, 'comment': comment, 'app': app_name}
+                reviews.append({'rating': rating, 'comment': comment, 'app': app_name, 'label':1})
+                user_reviews[rating] = {'rating': rating, 'comment': comment, 'app': app_name, 'label':1}
                 return jsonify({'status': 'success'})
     else:
         return jsonify({'status': 'error', 'message': 'Missing rating, comment, or app name'}), 400
